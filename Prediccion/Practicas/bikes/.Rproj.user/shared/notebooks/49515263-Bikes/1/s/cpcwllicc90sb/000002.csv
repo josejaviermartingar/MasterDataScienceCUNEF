@@ -1,0 +1,6 @@
+"0","library(ISLR)"
+"0","library(boot)"
+"0","library(gam)"
+"0","library(corrplot)"
+"0","library(dplyr)"
+"0","bikes <- read.csv(""C:/Users/Equipo/Desktop/CUNEF/Prediccion/Datos/day.csv"")"

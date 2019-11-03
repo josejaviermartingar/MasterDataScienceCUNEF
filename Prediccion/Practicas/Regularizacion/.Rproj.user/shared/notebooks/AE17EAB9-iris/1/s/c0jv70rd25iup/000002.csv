@@ -1,0 +1,3 @@
+"0","setosa <- filter(iris, iris$Especie == ""setosa"")"
+"0","versicolor <- filter(iris, iris$Especie == ""versicolor"")"
+"0","virginica <- filter(iris, iris$Especie == ""virginica"")"

@@ -1,0 +1,8 @@
+"0","fit3 <- smooth.spline(windspeed, cnt, df = 16)"
+"0","fit4 <- smooth.spline(windspeed, cnt, cv = TRUE)"
+"2","cross-validation with non-unique 'x' values seems doubtful"
+"0","fit4$df"
+"1","[1]"
+"1"," 6.007664"
+"1","
+"

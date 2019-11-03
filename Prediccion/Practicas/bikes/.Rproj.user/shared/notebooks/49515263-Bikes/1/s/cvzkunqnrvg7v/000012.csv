@@ -1,0 +1,8 @@
+"0","fit1 <- smooth.spline(temp, cnt, df = 16)"
+"0","fit2 <- smooth.spline(temp, cnt, cv = TRUE)"
+"2","cross-validation with non-unique 'x' values seems doubtful"
+"0","fit2$df"
+"1","[1]"
+"1"," 9.103704"
+"1","
+"

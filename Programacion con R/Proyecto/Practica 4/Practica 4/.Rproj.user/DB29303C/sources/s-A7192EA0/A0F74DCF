@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1570447637290.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2979764568",
+    "id" : "A0F74DCF",
+    "lastKnownWriteTime" : 1570566595,
+    "last_content_update" : 1570566595656,
+    "path" : "C:/Users/Equipo/Desktop/CUNEF/Prediccion/Practicas/nba.r",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "98,0",
+        "scrollLine" : "79",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,3 @@
+"0","windspeedLims <- range(bikes$windspeed) #Calculo los limites de la variable "
+"0",""
+"0","plot(windspeed, cnt, xlim = windspeedLims, col = ""gray"")"

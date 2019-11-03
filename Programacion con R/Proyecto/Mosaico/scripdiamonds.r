@@ -1,0 +1,6 @@
+library(tidyverse)
+data("diamonds")
+library(hexbin)
+ggplot(diamonds, aes(carat, price))+geom_hex()
+ggsave("diamonds.jpg")
+write.csv(diamonds, "diamonds.csv")

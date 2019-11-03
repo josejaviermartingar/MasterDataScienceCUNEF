@@ -1,0 +1,8 @@
+"0","fit5 <- smooth.spline(hum, cnt, df = 16)"
+"0","fit6 <- smooth.spline(hum, cnt, cv = TRUE)"
+"2","cross-validation with non-unique 'x' values seems doubtful"
+"0","fit6$df"
+"1","[1]"
+"1"," 4.548876"
+"1","
+"

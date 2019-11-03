@@ -1,0 +1,1 @@
+"0","nba <- select(nba, -Player, -Tm, -NBA_Country, -ORB_, -WinSH, -OWS, -OBPM, -DRB_, -DWS, -DBPM)"

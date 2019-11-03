@@ -1,0 +1,233 @@
+---
+title: "Regularización del Modelo de Predicción de Salarios"
+author: "Jose Javier Martíb García"
+date: "17/10/2019"
+output: pdf_document
+---
+En esta práctica lo que he hecho ha sido regularizar el modelo de predicción de salarios con el cual ya había trabajado en la práctica anterior con la diferencia de que en el modelo de este informe he mantenido más variables que las que elegí en el modelo anterior pasando de 4 a 17 variables explicativas. A continuación voy a explicar que son cada una de dichas variables como trabajo de documentación del data set.
+
+*Age: es la edad del jugador.
+
+*G: son los partidos que ha jugado.
+
+*MP: Son los minutos jugados.
+
+*PER: ratio de eficiencia del jugador, mide un estandar de producción, el promedio esta en 15.
+
+*TS_: es el porcentaje de tiros acertados tanto tiros libres, de dos puntos y triples.
+
+*X3PAr: Es el porcentaje de intentos desde la linea de 6.75 (triple).
+
+*FTr: es el porcentaje de intentos desde la linea de personal (tiros libres).
+
+*TRB_: es el porcentaje total de rebotes, tanto ofensivos como defensivos que el jugador atrapa mientras esta en pista.
+
+*AST_: es el porcentaje de asistencias que un jugador da a sus compañeros cuando estos aciertan en el tiro.
+
+*STL_: es el porcentaje de balones robados al jugador contrario.
+
+*BLK_: es elporcentaje de tapones.
+
+*TOV_: es una estimacion de perdidas cometidas por cada 100 jugadas.
+
+*USG_: es el porcentaje de las jugadas en equipo usadas mientras el jugador esta en pista.
+
+*WS: es el número de victorias estimadas en las que ha participado el jugador (Responsabilidad de Victorias).
+
+*BPM: posesiones en las que un jugador contribuye por encima de un jugador promedio de la liga traducido al equipo promedio.
+
+*VORP: posesiones de equipo en lasque un jugador contribuye por encima de un reemplazo traducido a un equipo promedio y prorrateado a una temporada de 82 partidos.
+
+*NBA_Draft: ronda y posición de la elección en el Draft de un jugador.
+
+
+
+```{r, echo = FALSE}
+library(rsample)  
+library(glmnet)   
+library(dplyr)    
+library(ggplot2)
+library(corrplot)
+
+
+nba <- read.csv("C:/Users/Equipo/Desktop/CUNEF/Prediccion/Datos/nba.csv")
+here::here()
+nba <- na.omit(nba)
+
+Modelo1reg <- lm(Salary ~ Age + AST_ + BLK_ + BPM + FTr + G + MP + 
+                NBA_DraftNumber + PER + STL_ + TOV_ + TRB_ + TS_ + USG_ + 
+                VORP + WS  + X3PAr, data = nba)
+summary(Modelo1reg)
+```
+
+Aqui lo que he hecho ha sido quitar las variables que no quiero usar.
+
+```{r, echo = FALSE}
+nba <- select(nba, -Player, -Tm, -NBA_Country, -ORB_, -WinSH, -OWS, -OBPM, -DRB_, -DWS, -DBPM)
+```
+
+En este punto he generado la matriz de correlación para ver como de correlacionadas están mis variables.
+
+```{r, echo = FALSE}
+round(cor(nba),2)
+correlacion <- round(cor(nba), 1)
+corrplot(correlacion, method = "number", type = "full")
+```
+
+Al analizar la matriz de correlación podemos observar que la variable MP está muy 
+correlacionada con la variable G, al igual que BPM lo está con PER y a su vez WS con VORP. Esto quiere decir que los valores de cada una de ellas varian sistematicamente con respecto a los valores de la que hemos considerado aqui su pareja, es decir existe una relacion directa. 
+Como en este caso lo que queremos ver son que variables son las mas afectan a la hora de predecir el salario, cabe señalar que el Salario esta correlacionado positivamente con las variables WS y VORP en un 0.6 de coeficiente de correlacion y con la variable MP en un 0.5 lo que nos quiere decir que al aumentar dichas variables el Salario aumenta proporcionalmente. 
+
+Al contrario ocurre con la variable NBA_Draft que respecto al salario existe una correlacion negativa y eso es muy logico ya que a posteriores rondas de seleccion en el Draft el salario disminuye ya que no es lo mismo ser elegido en primera ronda que en rondas posteriores y mas aun cuando un jugador es elegido como primero en la primera ronda, el cual es considerado el mejor "universitario" del año. 
+
+En este punto he construido los training.
+
+```{r, echo = FALSE}
+set.seed(200)
+nba_split <- initial_split(nba, prop = .7, strata = "Salary")
+
+nba_train <- training(nba_split)
+
+nba_test  <- testing(nba_split)
+
+
+nba_train_x <- model.matrix(Salary ~ Age + AST_ + BLK_ + BPM + FTr + G + MP + 
+                              NBA_DraftNumber + PER + STL_ + TOV_ + TRB_ + TS_ + USG_ + 
+                              VORP + WS  + X3PAr, data = nba_train)[, -1]
+
+nba_train_y <- log(nba_train$Salary)
+
+nba_test_x <- model.matrix(Salary ~ ., nba_test)[, -1]
+
+nba_test_y <- log(nba_test$Salary)
+```
+
+La finalidad de usar los training ha sido porque nos sirve para ajustar el modelo.
+Gracias al metodo de Cross-Validation hemos generado los training set y el test de prueba con el que evaluaremos la capacidad predictiva mediante el error de prediccion.
+
+Con esta matriz lo que vemos es que el numero de observaciones ha sido reducido con respecto a la base de datos original ya que el "train" ha reducido la muestra.
+
+```{r, echo = FALSE}
+dim(nba_train_x)
+```
+
+A partir de aqui me he dedicado a usar el metodo de regularizacion llamado Elastic Nets. Dicha tecnica selecciona variables automaticamente y supera la eficacia del metodo Lasso. Es muy util cuando el numero de estimadores es mayor que el numero de observaciones.
+
+```{r, echo = FALSE}
+metodo_lasso    <- glmnet(nba_train_x, nba_train_y, alpha = 1.0) 
+metodo_elastic1 <- glmnet(nba_train_x, nba_train_y, alpha = 0.25) 
+metodo_elastic2 <- glmnet(nba_train_x, nba_train_y, alpha = 0.75) 
+metodo_ridge    <- glmnet(nba_train_x, nba_train_y, alpha = 0.0)
+```
+
+En el paso siguiente lo que tenemos que tener en cuenta es que cuanto mayor sea Lambda mayor es la penalizacion en los coeficientes de regresion estimados en funcion de dicho parametro. Tambien debemos tener en cuenta que l más optimo es elegir el valor más pequeño de Lambda con el cual se estabilizan dichos coeficientes. 
+
+```{r, echo = FALSE}
+par(mfrow = c(2, 2), mar = c(6, 4, 6, 2) + 0.1)
+plot(metodo_lasso, xvar = "lambda", main = "Lasso (Alpha = 1)\n\n\n")
+plot(metodo_elastic1, xvar = "lambda", main = "Elastic Net (Alpha = .25)\n\n\n")
+plot(metodo_elastic2, xvar = "lambda", main = "Elastic Net (Alpha = .75)\n\n\n")
+plot(metodo_ridge, xvar = "lambda", main = "Ridge (Alpha = 0)\n\n\n")
+```
+
+Llegados a este punto, mediante tecnicas de Cross-Validation he elegido que el parametro K sea 10 (aunque tambien se puede utlizar k=5) esto quiere decir que el conjunto de datos se ha divido en 10 subconjuntos de tamaño similar para hacer más facil el analisis.
+
+```{r, echo = FALSE}
+fold_id <- sample(1:10, size = length(nba_train_y), replace = TRUE)
+
+nba_grid <- tibble::tibble(
+  alpha      = seq(0, 1, by = .1),
+  mse_min    = NA,
+  mse_1se    = NA,
+  lambda_min = NA,
+  lambda_1se = NA
+)
+```
+
+Con el siguiente bucle se han ido asignando los valores que faltaban en nba_grid
+
+```{r, echo = FALSE}
+for (i in seq_along(nba_grid$alpha)) {
+  
+  
+nba_fit <- cv.glmnet(nba_train_x, nba_train_y, alpha = nba_grid$alpha[i], foldid = fold_id)
+  
+  
+  nba_grid$mse_min[i]    <- nba_fit$cvm[nba_fit$lambda == nba_fit$lambda.min]
+  nba_grid$mse_1se[i]    <- nba_fit$cvm[nba_fit$lambda == nba_fit$lambda.1se]
+  nba_grid$lambda_min[i] <- nba_fit$lambda.min
+  nba_grid$lambda_1se[i] <- nba_fit$lambda.1se
+}
+
+nba_grid
+```
+
+Con esto vemos que para un alpha de coeficiente 1 asigna el valor minimo de lambda que en este caso es 0.434, lo cual es un valor muy pequeño y de esa manera la penalización es mínima.
+
+El glmnet es un de estimación denominado Modelo Lineal en el cual los estimadores están generalizados.
+
+```{r, echo = FALSE}
+nba_grid %>%
+  mutate(se = mse_1se - mse_min) %>%
+  ggplot(aes(alpha, mse_min)) +
+  geom_line(size = 2) +
+  geom_ribbon(aes(ymax = mse_min + se, ymin = mse_min - se), alpha = 0.3) +
+  ggtitle("MSE ± one standard error")
+```
+
+Con el glmnet vemos el coeficiente de lambda que es el mismo que vimos en la tabla para un alpha de valor 1 que generamos a traves del bucle for y a su vez podemos ver la bondad de ajuste del modelo con el test de Cramer-Von Mises, el cual me ha dado un valor de error medio de validación cruzada de 1.136829 que es el valor de la media de los valores de error de cada uno de mis diez K.
+
+```{r, echo = FALSE}
+cv_lasso   <- cv.glmnet(nba_train_x, nba_train_y, alpha = 1.0)
+min(cv_lasso$cvm)
+cv_lasso
+coef(cv_lasso)
+```
+
+Con los resultados del modelo y a la vista de los coeficientes obtenidos podemos estimar el salario de un jugador multiplicando las variables de un jugador en concreto por el indice que aparece resultante del modelo Lasso para su variable correspondiente:
+
+*Age = 0.0473575441
+*MP = 0.0005123538
+*NBA_Draft = -0.0145709863
+*WS = 0.0170151887
+
+Podemos comprobar que el número de ronda del Drafrt es negativo por el motivo que explique anteriormente.
+
+Otra cosa que hay que destacar es que los valores están en base logaritmica y para estimar el salario habria que usar una funcion exponencial.
+
+Con la funcion predict vamos a predecir valores ajustados y otros coeficientes.
+
+```{r, echo = FALSE}
+nba_pred <- predict(cv_lasso, s = cv_lasso$lambda.min, nba_test_x)
+mean((nba_test_y - nba_pred)^2)
+nba_pred
+```
+
+Después de esto lo que he visto es el valor de predicción para cada uno de los elementos del nba_test_X y al hacer la media de la diferencia de cuadrados con el test y me da el valor cuadrático medio de la predicción.
+
+Aqui lo que he hecho ha sido utilizar el metodo Caret para contrastar los coeficientes respecto al metodo Elastic Nets.
+
+```{r, echo = FALSE}
+library(caret)
+
+train_control <- trainControl(method = "cv", number = 10)
+
+caret_mod <- train(
+  x = nba_train_x,
+  y = nba_train_y,
+  method = "glmnet",
+  preProc = c("center", "scale", "zv", "nzv"),
+  trControl = train_control,
+  tuneLength = 10
+)
+
+caret_mod
+```
+
+Despues de hacer el metodo Caret (utilice este porque me parecio mas practico que el H2O) he de decir que la lambda que me da es mucho mayor que la que obtengo con el metodo de Elastic Nets en un principio llegue a pensar que ambos modelos harían lo mismo pero a raíz de los resultados, reconozco que me surgen dudas, porque la verdad es que hay mucha diferencia entre ambos valores de lambda.
+
+El alpha optimo para este modelo es 1, el cual es el valor maximo para distribuir la penalizacion. Por tanto me quedare con el metodo de Elastic Nets el cual me produce un modelo con un nivel muy aceptable de prediccion, por ello acabare diciendo que las variables elegidas predicen bien el salario a pagar a los jugadores de la NBA.
+
+FUENTES:
+
+[(http://rpubs.com/Joaquin_AR/406480][1], [http://idus.us.es/xmlui/bitstream/handle/11441/43746/Carrasco%20Carrasco%2C%20Mar%C3%ADa%20TFG.pdf?sequence=1&isAllowed=y][2], [http://www.basketball-reference.com/leagues/NBA_2018_advanced.html][3]

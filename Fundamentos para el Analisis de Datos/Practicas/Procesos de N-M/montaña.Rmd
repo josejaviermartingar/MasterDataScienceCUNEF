@@ -1,0 +1,108 @@
+---
+title: "Caso Hotel de Montaña"
+author: "Jose Javier Martíb García"
+date: "21/10/2019"
+output: pdf_document
+---
+
+El parking exterior de un hotel de montaña estÃ¡ limitado a cinco plazas
+Los conductores que lo usan llegan siguiendo una distribucion de 
+Poisson con frecuencia de 6 por hora El tiempo de estacionamiento
+tiene distribucion exponencial con 30 minutos de promedio Los
+conductores que no pueden encontrar un hueco vacio inmediatamente
+cuando llegan pueden esperar dentro del estacionamiento hasta que salga un automovil, pero solo pueden permanecer en espera 3 vehiculos Los vehiculos que no pueden aparcar ni tampoco quedan huecos provisionales se deben ir Determinar
+
+
+Ecuaciones de equilibrio 
+
+lambda0 --> lambda1 --> lambda2 --> lambda3 --> lambda4 --> lambda5 --> lambda6 --> lambda7 --> lambda8
+
+ nu0 -----> nu1 <------ 2nu2 <------- 3nu3 <------- 3nu4 <------- 3nu5 <------- 3nu6 <--- 3nu7 <--3nu8
+
+Como hay 3 que pueden esperar la tasa de salida sera en funcion del 3 por eso es 3*nu
+
+p1(nu) = p0(lambda)
+p1(lambda) +  p1(nu) = p0(lambda) + 2p2(nu)
+p2(lambda) + 2p2(nu) = p1(lambda) + 2p3(nu)
+p3(lambda) + 2p3(nu) = p2(lambda) + 2p4(nu)
+p4(lambda) + 2p4(nu) = p3(lambda) + 2p5(nu)
+p5(lambda) + 2p5(nu) = p4(lambda) + 2p6(nu)
+p6(lambda) + 2p6(nu) = p5(lambda) + 2p7(nu)
+p7(lambda) + 2p7(nu) = p6(lambda) + 2p8(nu)
+pn(lambda) + 2pn(nu) = pn-1(lambda) + 3pn+1(nu)
+sum(p0:p8) = 1
+
+```{r}
+#Poisson
+
+lambda <- 6
+
+#Estados son las 5 plazas de parking mas las 3 plazas de estacionamiento temporal
+
+estados = 5 + 3
+
+#Exponencial
+# Tasa_salida= 30 min de promedio = 0.5 h/conductor.
+# Exponencial = 1/lambda_Exp = media de tiempo de salida
+
+tiempo_medio_salida <- 30/60
+nu = 1/tiempo_medio_salida
+
+suma <- 0
+for (numero_estados in 0:estados) {
+  suma = suma + (lambda/nu)^numero_estados
+}
+suma  
+
+P0 <- 1/suma
+
+pn <- function(n, p){
+  return(p * (lambda/nu)^n)}
+```
+
+a) La probabilidad de que haya autos en el sistema
+```{r}
+P1 <- pn(1, P0)
+P2 <- pn(2, P0)
+P3 <- pn(3, P0)
+P4 <- pn(4, P0)
+P5 <- pn(5, P0)
+P6 <- pn(6, P0)
+P7 <- pn(7, P0)
+P8 <- pn(8, P0)
+```
+
+
+b)La frecuencia efectiva de llegada para autos que usen el parking
+```{r}
+frecuencia_efectiva <- 1 - P8
+```
+
+
+c) La cantidad media de autos en el parking
+
+```{r}
+media_coches_parking <- 0 * P0 + 1 * P1 + 2 * P2 + 3 * P3 + 4 * P4 + 5 * P5 + 6 * P6 + 7 * P7 + 8 * P8 
+
+```
+
+
+
+
+d) El tiempo medio que espera un auto para estacionar, estando en una plaza provisional
+
+En este caso debemos mirar los estados del 6 al 8 ya que hasta el quinto pueden aparcar al admitir dicho parking 5 plazas y hasta 8 los 3 ultimos son los que deben esperar su turno por eso miramos los 3 estados finales.
+
+```{r}
+coches_esperando <- c(1, 2, 3)
+tiempo_medio_espera <- P6 * coches_esperando[1] * tiempo_medio_salida +
+  P7 * coches_esperando[2] * tiempo_medio_salida +
+  P8 * coches_esperando[3] * tiempo_medio_salida
+```
+
+
+e) La cantidad promedio de plazas de estacionamiento ocupadas
+
+La tasa de llegada es en terminos de tiempo es menor que la tasa de salida por eso 
+la cantidad media de plazas ocupadas es igual al maximo de plazas posibles que en este caso es 6
+

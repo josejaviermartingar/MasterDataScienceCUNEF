@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1571828008106.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "26313116",
+    "id" : "F52B3007",
+    "lastKnownWriteTime" : 1571870437,
+    "last_content_update" : 1571870437173,
+    "path" : "C:/Users/Equipo/Desktop/CUNEF/Prediccion/Practicas/bikes/bikes.R",
+    "project_path" : "bikes.R",
+    "properties" : {
+        "cursorPosition" : "12,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

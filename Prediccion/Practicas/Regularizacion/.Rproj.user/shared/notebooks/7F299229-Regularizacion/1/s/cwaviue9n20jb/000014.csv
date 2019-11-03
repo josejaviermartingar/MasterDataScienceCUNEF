@@ -1,0 +1,2 @@
+"0","par(mfrow = c(2, 2), mar = c(6, 4, 6, 2) + 0.1)"
+"0","plot(metodo_lasso, xvar = ""lambda"", main = ""Lasso (Alpha = 1)\n\n\n"")"

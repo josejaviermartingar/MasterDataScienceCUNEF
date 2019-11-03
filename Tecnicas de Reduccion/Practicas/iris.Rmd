@@ -1,0 +1,75 @@
+---
+title: "Analisis del Genero Iris"
+author: "Jose Javier Martín García"
+date: "14/10/2019"
+output: pdf_document
+---
+
+```{r, echo = FALSE}
+library(ggplot2)
+```
+
+Cargamos la base de datos IRIS para proceder al posterior analisis de sus datos.
+
+```{r, echo = FALSE}
+iris <- read.csv("C:/Users/Equipo/Desktop/CUNEF/Prediccion/Practicas/Regularizacion/iris.csv")
+```
+
+A la vista del significado del nombre de las variables podemos decir que la base de datos esta compuesta por una muestra de 150 plantas del genero Iris segmentadas por sus tres tipos de especie (Setosa, Versicolor, Virginica)
+
+```{r, echo = FALSE}
+names(iris)
+```
+
+El motivo de hacer un filter en este momento no es otro que poder averiguar cuantas plantas de cada especie hay y a su vez poder trabar con dichas muestras por separado.
+
+```{r, echo = FALSE}
+setosa <- filter(iris, iris$Especie == "setosa")
+versicolor <- filter(iris, iris$Especie == "versicolor")
+virginica <- filter(iris, iris$Especie == "virginica")
+```
+
+Con estos resumenes estadisticos he podido comprobar diferentes descriptivos de las submuestras.
+
+```{r, echo = FALSE}
+summary(setosa)
+summary(versicolor)
+summary(virginica)
+```
+
+Gracias a los resumenes se puede sacar en claro lo siguiente:
+
+La especie versicolor y la especie virginica son mayores que la especie setosa en cuanto a 
+longitud del sepalo y del petalo asi como de la anchura del petalo pero no pasa lo mismo con la anchura del sepalo la cual la especie setosa es mayor que las de las otras dos especies.
+
+Por lo que podria ser posible que ambas especies, Virginica y Versicolor estuvieran mas  relacionadas entre si entre ellas que con respecto a las plantas de la especie Setosa.
+
+```{r, echo = FALSE}
+ggplot(data = iris) + 
+    geom_boxplot(mapping = aes(x = Especie, y = Longitud_sepalo), color = "orange")
+
+ggplot(data = iris) + 
+  geom_boxplot(mapping = aes(x = Especie, y = Anchura_sepalo), color = "darkred")
+
+ggplot(data = iris) + 
+  geom_boxplot(mapping = aes(x = Especie, y = Longitud_petalo), color = "blue")
+
+ggplot(data = iris) + 
+  geom_boxplot(mapping = aes(x = Especie, y = Anchura_petalo), color = "darkgreen")
+```
+
+Gracias a estos graficos podemos ver de una manera mas clara como estan distribuidos las  maginitudes tomadas dentro de cada especie y ademas se puede comprobar que la especie Setosa presenta varios datos atipicos.
+
+Por tanto, vistos los resultados podemos afirmar que la especie Setosa tiene menos relacion que que las otras dos especies entre si, por eso a la hora de clasificarlas podriamos reducir la dimension a dos grupos en vez de a tres y asi nos sera mas facil analizar dichas especies pertenecientes al genero Iris.
+
+Los datos con los que hemos trabajado pertenecen a un conjunto de datos multivariante creado por Ronald Fisher quien desarrolló un modelo discriminante para distinguir entre una especie y otra.
+
+Fuente | [The Use of Multiple Measurements in Taxonomic Problems](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1469-1809.1936.tb02137.x)
+
+![Especie Setosa]("C:/Users/Equipo/Desktop/CUNEF/Tecnicas de Reduccion/descarga.jpg")
+
+![Especie Versicolor]("C:/Users/Equipo/Desktop/CUNEF/Tecnicas de Reduccion/vers.jpg")
+
+![Especie Virinica]("C:/Users/Equipo/Desktop/CUNEF/Tecnicas de Reduccion/virg.jpg")
+
+

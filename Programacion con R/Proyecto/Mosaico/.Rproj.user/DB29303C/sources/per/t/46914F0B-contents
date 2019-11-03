@@ -1,0 +1,23 @@
+#Creamos el dataset y le cambioamos el nombre por otro mas facil de manejar
+calificaciones<-calificaciones_ECO_2019EX
+#Con el comando length 
+length(calificaciones$`NOMBRE ALUMNO`)
+names(calificaciones) = c("Alumno", "Parcial1a", "Parcial1b", "Parcial2a", "MediaParc","NotaLabs", "Asistencia", "ExamFinal", "NotaFinal", "Calificacion")
+Notas2<-select(calificaciones, Alumno, ExamFinal, Asistencia, NotaFinal)
+Notas2<-filter(Notas2,!is.na(ExamFinal))
+mean(Notas2$ExamFinal)
+asistbaja<-subset(Notas, Notas$Asistencia<0.5)
+asistbaja<-subset(asistbaja, asistbaja$NotaFinal>5)
+asistbaja<-select(asistbaja, Alumno, Asistencia, NotaFinal)
+print(asistbaja)
+Notas2<-subset(Notas2, Notas2$NotaFinal>5)
+print(Notas2)
+CalifiCateg<-select(calificaciones, NotaFinal)
+CalifiCateg<-subset(CalifiCateg, CalifiCateg$NotaFinal>5)
+Notas2<-cbind.data.frame(Notas2, CalifiCateg)
+names(Notas2)=c("Alumno", "ExamFinal", "Asistencia", "NotaFinal", "CalifCateg")
+datos<-select(datos, CalifiCateg)
+Calificategorica<-datos
+Notas2<-select(Notas2, Alumno, ExamFinal, Asistencia, NotaFinal)
+Notas2<-cbind.data.frame(Notas2, Calificategorica)
+

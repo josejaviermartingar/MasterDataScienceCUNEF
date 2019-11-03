@@ -1,0 +1,4 @@
+"0","metodo_lasso    <- glmnet(nba_train_x, nba_train_y, alpha = 1.0) "
+"0","metodo_elastic1 <- glmnet(nba_train_x, nba_train_y, alpha = 0.25) "
+"0","metodo_elastic2 <- glmnet(nba_train_x, nba_train_y, alpha = 0.75) "
+"0","metodo_ridge    <- glmnet(nba_train_x, nba_train_y, alpha = 0.0)"

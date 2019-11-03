@@ -1,0 +1,33 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1571773126828.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "2AB93863",
+    "lastKnownWriteTime" : 18859042487205980,
+    "last_content_update" : 1571773126828,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "C705D508",
+        "caption" : "economics_long",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=economics_long&cache_key=C705D508",
+        "displayedObservations" : 2870,
+        "environment" : "",
+        "expression" : "economics_long",
+        "object" : "economics_long",
+        "preview" : 0,
+        "totalObservations" : 2870,
+        "variables" : 4
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

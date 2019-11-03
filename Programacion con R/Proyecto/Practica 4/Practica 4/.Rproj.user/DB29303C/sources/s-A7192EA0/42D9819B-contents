@@ -1,0 +1,103 @@
+# EXAMEN PREDICCIÓN DANIEL TOMÉ GORDO MÁSTER DATA SCIENCE 1 DE FEBRERO DE 2019
+
+
+## Instalación de las librerías que van a ser necesarias
+
+library(xts)
+library(ggplot2)
+library(ggfortify)
+library(forecast)
+library(CausalImpact)
+
+# PREPARACIÓN 
+
+d.data -> data_diario # Se renombra la variable y se procede a su eliminación para evitar la duplicidad
+rm(d.data) 
+
+datos_diar.zoo <- as.zoo(data_diario)
+names(datos_diar.zoo) <- "Visitantes Jameos"
+
+data_mensual <- to.monthly(xts(data_diario, frequency = 12))
+datos_mens.zoo <- as.zoo(data_mensual$`xts(data_diario, frequency = 12).Close`) # Para ecualizar criterios se tomará como valor del mes el número de visitantes del último día de cada mes
+names(datos_mens.zoo) <- "Visitante Jameos" # Se cambia el nombre por estética
+
+data_semanal <- to.weekly(xts(data_diario, frecuency = 52))
+datos_sem.zoo <- as.zoo(data_semanal$`xts(data_diario, frecuency = 52).Close`) # Para ecualizar criterios se tomará como valor del mes el número de visitantes del último día de cada semana
+names(datos_sem.zoo) <- "Visitante Jameos"
+
+# Gráfico de la evolución mensual
+
+autoplot(datos_mens.zoo) + ggtitle("Visitantes mensuales Jameos") + 
+  xlab("Meses") + ylab("Visitantes") # Se ve la tendencia mensual
+
+ggfreqplot(as.ts(datos_mens.zoo), nrow = 1, facet.labeller = c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                                                               "Julio", "Agosto", "Septiembre", "Octubre","Noviembre",
+                                                               "Diciembre")) + ggtitle("Visitantes mensuales")
+
+# Con este último se ve por meses. Parece que de febrero a octubre hay más afluencia (siendo julio el máximo)
+
+# Grafico de la evolución semanal
+
+autoplot(datos_sem.zoo) # El movimiento parece similar al mensual
+
+## PREDICCIÓN DE LA DIARIA
+
+muestra.pred_diar <- window(datos_diar.zoo) # Se crea el número de observaciones de la muestra
+
+# ETS
+
+mod_ets_diar <- ets(muestra.pred_diar, damped = TRUE)
+pred_ets_diar <- forecast(mod_ets_diar, h = 20) # Se consideran 20 días laborables
+summary(pred_ets_diar)
+
+plot(pred_ets_diar) # Errores multiplicativos (residuos muy grandes), tendencia aditiva (a simple vista no se detecta) y estacionalidad nula (a pesar de lo pensado antes)
+
+# ARIMA
+
+mod_arima_diaria <- auto.arima(muestra.pred_diar, lambda = 0) # Con ese lambda se aplica el logaritmo
+summary(mod_arima_diaria) # El modelo resultante es una ARIMA(4,1,3) (sin componente estacional)
+ggtsdisplay(mod_arima_diaria$residuals) # Si está entre las líneas azules (los residuos son irrelevantes -> ruido blanco)
+
+# No hay componente estacional y claramente hay un gran problema de residuos (son muy relevantes)
+
+pred_arima_diaria <- forecast(mod_arima_diaria, h = 20) # Se pone el parámetro h, para que prediga 16 períodos
+summary(pred_arima_diaria) # Más inestable, parece mejor predicción
+
+plot(pred_arima_diaria) # No se ve nada, es más útil el summary
+
+## PREDICCIÓN DE LA MENSUAL
+
+muestra.pred_mens <- window(datos_mens.zoo) # Se crea el número de observaciones de la muestra
+
+# ETS
+
+mod_ets_mens <- ets(muestra.pred_mens, damped = TRUE)
+pred_ets_mens <- forecast(mod_ets_mens, h = 1)
+summary(pred_ets_mens)
+
+plot(pred_ets_mens) # Errores multiplicativos (residuos muy grandes), tendencia aditiva (a simple vista no se detecta) y estacionalidad nula (a pesar de lo pensado antes)
+
+# ARIMA
+
+mod_arima_mens <- auto.arima(muestra.pred_mens, lambda = 0) # Con ese lambda se aplica el logaritmo
+summary(mod_arima_mens) # Aquí sí hay componente estacional (a pesar de lo hallado en ETS)
+ggtsdisplay(mod_arima_mens$residuals) # Si está entre las líneas azules (los residuos son irrelevantes -> ruido blanco)
+
+# No hay problema de residuos
+
+pred_arima_mens <- forecast(mod_arima_mens, h = 1) # Se pone el parámetro h, para que prediga 16 períodos
+summary(pred_arima_mens) # Más inestable, parece mejor predicción
+
+plot(pred_arima_mens)
+
+
+# Impacto Huelga Agosto 2017 (Causal Impact)
+
+huelga <- as.Date("2017-08-15")
+impacto <- CausalImpact(datos_diar.zoo,
+                        c(min(index(datos_diar.zoo)), huelga - 1), # Período prehuelga
+                        c(huelga, max(index(datos_diar.zoo)))) # Posthuelga
+plot(impacto, metrics = c("original", "pointwise","cumulative"))
+
+
+summary(impacto, "report") # No influyó la huelga

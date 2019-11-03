@@ -1,0 +1,26 @@
+"0","gam1 <- gam(cnt~s(temp, 9.103704) + s(windspeed, 6.007664) + s(hum, 4.548876), data = bikes)"
+"2","non-list contrasts argument ignored"
+"0","gam1"
+"1","Call:
+"
+"1","gam(formula = cnt ~ s(temp, 9.103704) + s(windspeed, 6.007664) + 
+"
+"1","    s(hum, 4.548876), data = bikes)
+"
+"1","
+Degrees of Freedom:"
+"1"," "
+"1","730"
+"1"," "
+"1","total;"
+"1"," "
+"1","710.3397"
+"1"," "
+"1","Residual
+"
+"1","Residual Deviance:"
+"1"," "
+"1","1061668352"
+"1"," "
+"1","
+"

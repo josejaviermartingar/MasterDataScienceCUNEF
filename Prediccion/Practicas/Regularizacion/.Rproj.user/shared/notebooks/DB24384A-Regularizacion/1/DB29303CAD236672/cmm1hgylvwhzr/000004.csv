@@ -1,0 +1,6 @@
+"0","nba_grid %>%"
+"0","  mutate(se = mse_1se - mse_min) %>%"
+"0","  ggplot(aes(alpha, mse_min)) +"
+"0","  geom_line(size = 2) +"
+"0","  geom_ribbon(aes(ymax = mse_min + se, ymin = mse_min - se), alpha = 0.3) +"
+"0","  ggtitle(""MSE ± one standard error"")"
